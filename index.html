@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成煦物理治療所・管理系統</title>
+<style>
+:root {
+  --brand:        #2B7A6F;
+  --brand-dark:   #1F5C54;
+  --brand-mid:    #3A9E91;
+  --brand-light:  #E6F5F3;
+  --brand-xlight: #F2FAF9;
+  --amber:        #E07B39;
+  --amber-light:  #FDF0E8;
+  --indigo:       #4A6FA5;
+  --indigo-light: #EBF0F8;
+  --purple:       #7B5EA7;
+  --purple-light: #F2EEF9;
+  --success:      #3A8C5C;
+  --success-light:#E8F5EE;
+  --warn:         #C07B2A;
+  --warn-light:   #FEF5E4;
+  --danger:       #C0392B;
+  --danger-light: #FDECEA;
+  --gray-50:  #F8F9FA;
+  --gray-100: #F1F3F4;
+  --gray-200: #E4E7EB;
+  --gray-300: #CDD2D8;
+  --gray-400: #9AA3AE;
+  --gray-600: #636E7A;
+  --gray-800: #2C3540;
+  --radius:   10px;
+  --shadow:   0 2px 10px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','PingFang TC','Microsoft JhengHei',sans-serif;
+  background:#EEF2F0;color:var(--gray-800);font-size:14px;}
+
+/* ─── Layout ─── */
+#wrap{display:flex;height:100vh;overflow:hidden;}
+.sidebar{width:220px;background:#1A3B35;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.brand h1{font-size:18px;font-weight:800;color:#fff;letter-spacing:.5px;}
+.brand h1 span{color:#5EC9BC;}
+.brand p{font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;}
+.nav-sec{padding:14px 0 4px;}
+.nav-lbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);
+  padding:0 18px 6px;text-transform:uppercase;letter-spacing:.8px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;
+  color:rgba(255,255,255,.6);cursor:pointer;font-size:13.5px;
+  border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.active{color:#5EC9BC;background:rgba(94,201,188,.1);border-left-color:#5EC9BC;font-weight:600;}
+.nav-item .ni{font-size:15px;width:18px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--amber);color:#fff;
+  border-radius:10px;font-size:11px;padding:1px 7px;font-weight:700;}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{height:58px;background:#fff;border-bottom:1px solid var(--gray-200);
+  display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0;}
+.topbar h2{font-size:16px;font-weight:700;flex:1;}
+.topbar-date{font-size:12px;color:var(--gray-400);}
+.content{flex:1;overflow-y:auto;padding:22px;}
+
+/* ─── Buttons ─── */
+.btn{padding:7px 16px;border-radius:7px;border:none;cursor:pointer;
+  font-size:13px;font-weight:600;transition:all .15s;display:inline-flex;
+  align-items:center;gap:6px;font-family:inherit;}
+.btn-brand{background:var(--brand);color:#fff;}
+.btn-brand:hover{background:var(--brand-dark);}
+.btn-outline{background:#fff;color:var(--brand);border:1.5px solid var(--brand);}
+.btn-outline:hover{background:var(--brand-light);}
+.btn-amber{background:var(--amber);color:#fff;}
+.btn-amber:hover{background:#c06828;}
+.btn-ghost{background:transparent;color:var(--gray-600);}
+.btn-ghost:hover{background:var(--gray-100);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-sm{padding:4px 11px;font-size:12px;border-radius:6px;}
+.btn-lg{padding:11px 24px;font-size:15px;}
+
+/* ─── Cards ─── */
+.card{background:#fff;border-radius:var(--radius);border:1px solid var(--gray-200);padding:20px;}
+.card+.card{margin-top:14px;}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;color:var(--gray-800);}
+.card-title .icon{font-size:16px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ─── Page ─── */
+.page{display:none;animation:fadeIn .2s;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ─── Status chips ─── */
+.chip{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;
+  border-radius:12px;font-size:11.5px;font-weight:600;}
+.chip-wait{background:var(--warn-light);color:var(--warn);}
+.chip-consult{background:var(--indigo-light);color:var(--indigo);}
+.chip-treat{background:var(--brand-light);color:var(--brand);}
+.chip-checkout{background:var(--amber-light);color:var(--amber);}
+.chip-done{background:var(--success-light);color:var(--success);}
+.chip-inst{background:var(--indigo-light);color:var(--indigo);}
+.chip-manual{background:var(--purple-light);color:var(--purple);}
+.chip-exercise{background:var(--brand-light);color:var(--brand-dark);}
+
+/* ─── Form ─── */
+.fg{margin-bottom:13px;}
+.fg label{display:block;font-size:11.5px;font-weight:700;
+  color:var(--gray-600);margin-bottom:4px;}
+.fg input,.fg select,.fg textarea{
+  width:100%;padding:8px 11px;border:1.5px solid var(--gray-200);
+  border-radius:7px;font-size:13px;outline:none;font-family:inherit;
+  transition:border-color .2s;background:#fff;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{
+  border-color:var(--brand-mid);box-shadow:0 0 0 3px rgba(58,158,145,.1);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;}
+hr.div{border:none;border-top:1px solid var(--gray-200);margin:14px 0;}
+
+/* ─── KANBAN BOARD ─── */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start;}
+.kb-col{background:var(--gray-100);border-radius:var(--radius);padding:12px;}
+.kb-col-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.kb-col-head .kb-title{font-size:13px;font-weight:700;}
+.kb-count{background:var(--gray-300);color:var(--gray-600);border-radius:10px;
+  font-size:11px;font-weight:700;padding:1px 8px;margin-left:auto;}
+.kb-col.col-consult .kb-count{background:var(--indigo-light);color:var(--indigo);}
+.kb-col.col-treat .kb-count{background:var(--brand-light);color:var(--brand);}
+.kb-col.col-checkout .kb-count{background:var(--amber-light);color:var(--amber);}
+
+.pt-card{background:#fff;border-radius:8px;border:1px solid var(--gray-200);
+  padding:12px;margin-bottom:8px;cursor:pointer;transition:all .15s;}
+.pt-card:hover{box-shadow:var(--shadow);border-color:var(--brand-mid);}
+.pt-card .pt-name{font-weight:700;font-size:14px;margin-bottom:4px;}
+.pt-card .pt-meta{font-size:11.5px;color:var(--gray-400);margin-bottom:7px;line-height:1.5;}
+.pt-card .pt-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.pt-card .pt-action{display:flex;gap:6px;margin-top:10px;}
+
+/* ─── Stats ─── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat{background:#fff;border-radius:var(--radius);border:1px solid var(--gray-200);padding:16px 18px;}
+.stat .s-label{font-size:11.5px;color:var(--gray-400);margin-bottom:5px;}
+.stat .s-val{font-size:28px;font-weight:800;line-height:1;}
+.stat .s-sub{font-size:11.5px;color:var(--success);margin-top:4px;}
+
+/* ─── Treatment items ─── */
+.treat-row{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:var(--gray-50);border-radius:8px;margin-bottom:7px;}
+.treat-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand);cursor:pointer;}
+.treat-row .tr-name{flex:1;font-size:13px;line-height:1.4;}
+.treat-row .tr-price{font-weight:700;color:var(--brand);font-size:13px;white-space:nowrap;}
+.treat-row .tr-dur{font-size:11px;color:var(--gray-400);}
+
+/* ─── Product cards ─── */
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.prod-card{border:1.5px solid var(--gray-200);border-radius:8px;padding:12px;cursor:pointer;transition:all .15s;}
+.prod-card:hover{border-color:var(--brand-mid);background:var(--brand-xlight);}
+.prod-card.selected{border-color:var(--brand);background:var(--brand-light);}
+.prod-card .p-icon{font-size:28px;margin-bottom:6px;text-align:center;}
+.prod-card .p-name{font-size:12.5px;font-weight:700;text-align:center;margin-bottom:3px;}
+.prod-card .p-price{font-size:13px;font-weight:800;color:var(--brand);text-align:center;}
+.prod-card .p-stock{font-size:11px;color:var(--gray-400);text-align:center;}
+.qty-ctrl{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:7px;}
+.qty-ctrl button{width:22px;height:22px;border:1px solid var(--gray-300);
+  border-radius:4px;background:#fff;cursor:pointer;font-size:14px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;color:var(--gray-600);}
+.qty-ctrl span{font-size:13px;font-weight:700;min-width:16px;text-align:center;}
+
+/* ─── Payment ─── */
+.pay-sum{background:var(--gray-50);border-radius:8px;padding:14px;margin-bottom:14px;}
+.pay-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:var(--gray-600);}
+.pay-row.total{font-size:17px;font-weight:800;color:var(--gray-800);
+  border-top:1px solid var(--gray-300);margin-top:8px;padding-top:10px;}
+.pay-method{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
+.pm-btn{border:2px solid var(--gray-200);border-radius:10px;padding:14px 8px;
+  text-align:center;cursor:pointer;transition:all .15s;}
+.pm-btn:hover{border-color:var(--brand-mid);}
+.pm-btn.sel{border-color:var(--brand);background:var(--brand-light);}
+.pm-btn .pm-icon{font-size:26px;margin-bottom:4px;}
+.pm-btn .pm-label{font-size:12px;font-weight:700;}
+
+/* ─── Zone board ─── */
+.zone-board{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.zone-col{border-radius:var(--radius);overflow:hidden;border:1px solid var(--gray-200);}
+.zone-head{padding:12px 14px;font-weight:800;font-size:13.5px;
+  display:flex;align-items:center;gap:8px;}
+.zone-head.inst{background:var(--indigo-light);color:var(--indigo);}
+.zone-head.manual{background:var(--purple-light);color:var(--purple);}
+.zone-head.exercise{background:var(--brand-light);color:var(--brand-dark);}
+.zone-body{background:#fff;padding:10px;}
+.zone-pt{padding:9px 10px;border-radius:7px;margin-bottom:7px;
+  background:var(--gray-50);border:1px solid var(--gray-200);}
+.zone-pt .zp-name{font-weight:700;font-size:13px;}
+.zone-pt .zp-item{font-size:12px;color:var(--gray-600);margin-top:2px;}
+.zone-pt .zp-time{font-size:11px;color:var(--gray-400);margin-top:3px;}
+
+/* ─── Table ─── */
+table{width:100%;border-collapse:collapse;}
+th{font-size:11.5px;font-weight:700;color:var(--gray-600);text-align:left;
+  padding:9px 12px;border-bottom:2px solid var(--gray-200);background:var(--gray-50);}
+td{padding:10px 12px;border-bottom:1px solid var(--gray-100);font-size:13px;}
+tr:hover td{background:var(--gray-50);}
+
+/* ─── Receipt ─── */
+.receipt{border:2px dashed var(--gray-300);border-radius:10px;padding:20px;text-align:center;}
+.receipt h3{font-size:20px;font-weight:900;color:var(--brand);}
+.receipt .sub{font-size:11.5px;color:var(--gray-400);margin:3px 0 16px;}
+.rcpt-row{display:flex;justify-content:space-between;
+  padding:5px 0;font-size:13px;border-bottom:1px dotted var(--gray-200);}
+.rcpt-total{display:flex;justify-content:space-between;
+  font-weight:800;font-size:18px;margin-top:10px;color:var(--brand);}
+.rcpt-footer{font-size:11px;color:var(--gray-400);margin-top:14px;line-height:1.7;}
+
+/* ─── Modal ─── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:100;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:14px;padding:26px;width:500px;
+  max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.18);}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:20px;
+  display:flex;align-items:center;gap:8px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+
+/* ─── Toast ─── */
+#toast{position:fixed;bottom:24px;right:24px;background:#1A3B35;color:#fff;
+  padding:13px 22px;border-radius:9px;font-size:13px;font-weight:500;z-index:999;
+  opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;
+  border-left:4px solid #5EC9BC;}
+#toast.show{opacity:1;transform:none;}
+
+/* ─── Timer ─── */
+.timer-display{font-size:46px;font-weight:900;letter-spacing:3px;
+  color:var(--brand);text-align:center;padding:8px 0;}
+
+/* ─── Bar chart ─── */
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:140px;padding:0 2px;}
+.bar-chart .bar{flex:1;border-radius:4px 4px 0 0;transition:opacity .2s;cursor:pointer;}
+.bar-chart .bar:hover{opacity:.75;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:3px;}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar">
+  <div class="brand">
+    <h1>成<span>煦</span></h1>
+    <p>物理治療所・管理系統</p>
+  </div>
+
+  <div class="nav-sec">
+    <div class="nav-lbl">主要</div>
+    <div class="nav-item active" onclick="goPage('board')">
+      <span class="ni">🏄</span> 今日流程看板
+    </div>
+    <div class="nav-item" onclick="goPage('checkin')">
+      <span class="ni">📝</span> 報到掛號
+    </div>
+  </div>
+
+  <div class="nav-sec">
+    <div class="nav-lbl">三階段流程</div>
+    <div class="nav-item" onclick="goPage('consult')">
+      <span class="ni">🩻</span> 看診評估
+    </div>
+    <div class="nav-item" onclick="goPage('zones')">
+      <span class="ni">⚕️</span> 治療區管理
+      <span class="nav-badge" id="zone-badge">5</span>
+    </div>
+    <div class="nav-item" onclick="goPage('checkout')">
+      <span class="ni">💳</span> 結帳收費
+    </div>
+  </div>
+
+  <div class="nav-sec">
+    <div class="nav-lbl">管理</div>
+    <div class="nav-item" onclick="goPage('patients')">
+      <span class="ni">👥</span> 患者資料
+    </div>
+    <div class="nav-item" onclick="goPage('products')">
+      <span class="ni">🛍️</span> 商品管理
+    </div>
+    <div class="nav-item" onclick="goPage('reports')">
+      <span class="ni">📊</span> 收入報表
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <h2 id="page-title">今日流程看板</h2>
+    <span class="topbar-date" id="topbar-date"></span>
+    <button class="btn btn-brand" onclick="openModal('modal-checkin')">＋ 快速報到</button>
+  </div>
+
+  <div class="content">
+
+<!-- ══════════════════════════════════════════
+     PAGE: BOARD  今日流程看板
+══════════════════════════════════════════ -->
+<div class="page active" id="page-board">
+  <div class="stats">
+    <div class="stat">
+      <div class="s-label">今日報到</div>
+      <div class="s-val">9</div>
+      <div class="s-sub">↑ 較昨日 +1</div>
+    </div>
+    <div class="stat">
+      <div class="s-label">治療中人數</div>
+      <div class="s-val" style="color:var(--brand)">5</div>
+      <div class="s-sub" style="color:var(--gray-400)">3 區合計</div>
+    </div>
+    <div class="stat">
+      <div class="s-label">今日營收</div>
+      <div class="s-val">$14,800</div>
+      <div class="s-sub">含商品 $2,200</div>
+    </div>
+    <div class="stat">
+      <div class="s-label">平均客單</div>
+      <div class="s-val" style="color:var(--amber)">$1,644</div>
+      <div class="s-sub" style="color:var(--gray-400)">自費</div>
+    </div>
+  </div>
+
+  <!-- Flow banner -->
+  <div style="display:flex;align-items:center;gap:0;margin-bottom:16px;background:#fff;
+    border-radius:var(--radius);border:1px solid var(--gray-200);overflow:hidden;">
+    <div style="flex:1;text-align:center;padding:10px 6px;border-right:1px solid var(--gray-200);">
+      <div style="font-size:18px">📝</div>
+      <div style="font-size:12px;font-weight:700;color:var(--gray-600);margin-top:2px;">① 報到</div>
+    </div>
+    <div style="color:var(--gray-300);font-size:18px;padding:0 2px;">▶</div>
+    <div style="flex:1;text-align:center;padding:10px 6px;border-right:1px solid var(--gray-200);">
+      <div style="font-size:18px">🩻</div>
+      <div style="font-size:12px;font-weight:700;color:var(--indigo);margin-top:2px;">② 看診</div>
+    </div>
+    <div style="color:var(--gray-300);font-size:18px;padding:0 2px;">▶</div>
+    <div style="flex:3;padding:10px 8px;border-right:1px solid var(--gray-200);">
+      <div style="text-align:center;font-size:18px;margin-bottom:2px;">⚕️</div>
+      <div style="display:flex;justify-content:center;gap:8px;">
+        <span class="chip chip-inst" style="font-size:11px;">儀器</span>
+        <span class="chip chip-manual" style="font-size:11px;">徒手</span>
+        <span class="chip chip-exercise" style="font-size:11px;">運動</span>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--brand);text-align:center;margin-top:3px;">③ 治療</div>
+    </div>
+    <div style="color:var(--gray-300);font-size:18px;padding:0 2px;">▶</div>
+    <div style="flex:1;text-align:center;padding:10px 6px;">
+      <div style="font-size:18px">💳</div>
+      <div style="font-size:12px;font-weight:700;color:var(--amber);margin-top:2px;">④ 結帳</div>
+    </div>
+  </div>
+
+  <!-- Kanban -->
+  <div class="kanban">
+    <!-- 等候看診 -->
+    <div class="kb-col">
+      <div class="kb-col-head">
+        <span>📋</span>
+        <span class="kb-title" style="color:var(--gray-600)">等候看診</span>
+        <span class="kb-count">2</span>
+      </div>
+      <div class="pt-card" onclick="openConsult('許淑芬','初診','頸椎肩膀痠痛')">
+        <div class="pt-name">許淑芬</div>
+        <div class="pt-meta">10:30 預約・初診<br>主訴：頸椎肩膀痠痛</div>
+        <div class="pt-tags"><span class="chip chip-wait">等候 12 分</span></div>
+        <div class="pt-action">
+          <button class="btn btn-brand btn-sm" onclick="event.stopPropagation();openConsult('許淑芬','初診','頸椎肩膀痠痛')">進入看診</button>
+        </div>
+      </div>
+      <div class="pt-card">
+        <div class="pt-name">吳建宏</div>
+        <div class="pt-meta">11:00 預約・回診<br>主訴：膝關節復健</div>
+        <div class="pt-tags"><span class="chip chip-wait">等候 3 分</span></div>
+        <div class="pt-action">
+          <button class="btn btn-brand btn-sm">進入看診</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 看診中 -->
+    <div class="kb-col col-consult">
+      <div class="kb-col-head">
+        <span>🩻</span>
+        <span class="kb-title" style="color:var(--indigo)">看診中</span>
+        <span class="kb-count">1</span>
+      </div>
+      <div class="pt-card" onclick="goPage('consult')">
+        <div class="pt-name">陳美玲</div>
+        <div class="pt-meta">主治：林物治師<br>右肩旋轉肌袖症候群</div>
+        <div class="pt-tags"><span class="chip chip-consult">看診 8 分</span></div>
+        <div class="pt-action">
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();goPage('consult')">開立處方</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 治療中 -->
+    <div class="kb-col col-treat">
+      <div class="kb-col-head">
+        <span>⚕️</span>
+        <span class="kb-title" style="color:var(--brand)">治療中</span>
+        <span class="kb-count">5</span>
+      </div>
+      <div class="pt-card">
+        <div class="pt-name">王大明</div>
+        <div class="pt-meta">儀器區・超音波 + 電療</div>
+        <div class="pt-tags">
+          <span class="chip chip-inst">儀器</span>
+          <span class="chip chip-treat">治療 18 分</span>
+        </div>
+      </div>
+      <div class="pt-card">
+        <div class="pt-name">林雅惠</div>
+        <div class="pt-meta">徒手區・腰椎關節鬆動</div>
+        <div class="pt-tags">
+          <span class="chip chip-manual">徒手</span>
+          <span class="chip chip-treat">治療 22 分</span>
+        </div>
+      </div>
+      <div class="pt-card">
+        <div class="pt-name">張志豪</div>
+        <div class="pt-meta">運動區・核心穩定訓練</div>
+        <div class="pt-tags">
+          <span class="chip chip-exercise">運動</span>
+          <span class="chip chip-treat">治療 31 分</span>
+        </div>
+      </div>
+      <div class="pt-card">
+        <div class="pt-name">黃俊傑</div>
+        <div class="pt-meta">儀器＋徒手・肩頸</div>
+        <div class="pt-tags">
+          <span class="chip chip-inst">儀器</span>
+          <span class="chip chip-manual">徒手</span>
+        </div>
+      </div>
+      <div class="pt-card">
+        <div class="pt-name">蔡佳穎</div>
+        <div class="pt-meta">徒手區・筋膜放鬆</div>
+        <div class="pt-tags">
+          <span class="chip chip-manual">徒手</span>
+          <span class="chip chip-treat">治療 9 分</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 待結帳 -->
+    <div class="kb-col col-checkout">
+      <div class="kb-col-head">
+        <span>💳</span>
+        <span class="kb-title" style="color:var(--amber)">待結帳</span>
+        <span class="kb-count">1</span>
+      </div>
+      <div class="pt-card" onclick="goPage('checkout')">
+        <div class="pt-name">趙雅芬</div>
+        <div class="pt-meta">儀器 + 徒手 + 護具購買</div>
+        <div class="pt-tags">
+          <span class="chip chip-checkout">待付 $2,400</span>
+        </div>
+        <div class="pt-action">
+          <button class="btn btn-amber btn-sm" onclick="event.stopPropagation();goPage('checkout')">前往結帳</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: CHECKIN  報到掛號
+══════════════════════════════════════════ -->
+<div class="page" id="page-checkin">
+  <div class="grid2" style="align-items:start">
+    <div class="card">
+      <div class="card-title"><span class="icon">📝</span>患者報到</div>
+      <div class="fg">
+        <label>搜尋舊患者（姓名 / 電話）</label>
+        <input type="text" id="search-pt" placeholder="輸入後自動帶入資料..." oninput="searchPatient(this.value)">
+      </div>
+      <div id="search-results" style="margin-bottom:12px;"></div>
+      <hr class="div">
+      <div class="card-title" style="font-size:13px;color:var(--gray-600);margin-bottom:12px;">或填寫新患者資料</div>
+      <div class="frow">
+        <div class="fg"><label>姓名</label><input type="text" id="ci-name" placeholder="患者姓名"></div>
+        <div class="fg"><label>電話</label><input type="tel" id="ci-phone" placeholder="0912-345-678"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>性別</label>
+          <select><option>女</option><option>男</option></select></div>
+        <div class="fg"><label>出生年月日</label><input type="date"></div>
+      </div>
+      <div class="fg"><label>主訴・來訪目的</label>
+        <textarea rows="2" placeholder="主要疼痛部位或治療目的..."></textarea></div>
+      <div class="fg"><label>預約時段</label>
+        <select>
+          <option>立即看診</option><option>14:00</option>
+          <option>14:30</option><option>15:00</option><option>15:30</option>
+        </select>
+      </div>
+      <div class="fg"><label>來源</label>
+        <select>
+          <option>自行來訪</option><option>醫生轉介</option>
+          <option>親友介紹</option><option>網路搜尋</option><option>社群媒體</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+        <button class="btn btn-ghost">清除</button>
+        <button class="btn btn-brand" onclick="doCheckin()">✓ 完成報到</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title"><span class="icon">📋</span>今日候診序列</div>
+        <table>
+          <thead><tr><th>#</th><th>姓名</th><th>時段</th><th>主訴</th><th>狀態</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>趙雅芬</td><td>09:00</td><td>肩頸</td><td><span class="chip chip-done">已完成</span></td></tr>
+            <tr><td>2</td><td>王大明</td><td>09:30</td><td>腰椎</td><td><span class="chip chip-treat">治療中</span></td></tr>
+            <tr><td>3</td><td>陳美玲</td><td>10:00</td><td>右肩</td><td><span class="chip chip-consult">看診中</span></td></tr>
+            <tr><td>4</td><td>許淑芬</td><td>10:30</td><td>頸椎</td><td><span class="chip chip-wait">等候</span></td></tr>
+            <tr><td>5</td><td>吳建宏</td><td>11:00</td><td>膝關節</td><td><span class="chip chip-wait">等候</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <div class="card-title"><span class="icon">💡</span>快速說明</div>
+        <div style="font-size:13px;color:var(--gray-600);line-height:2;">
+          <div>① 患者報到 → 加入等候看診列表</div>
+          <div>② 主治物治師呼叫 → 進行評估與處方</div>
+          <div>③ 依處方分配至儀器／徒手／運動區</div>
+          <div>④ 治療完成 → 前往櫃台結帳付款</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: CONSULT  看診評估
+══════════════════════════════════════════ -->
+<div class="page" id="page-consult">
+  <div class="grid2" style="align-items:start">
+    <div>
+      <div class="card">
+        <div class="card-title"><span class="icon">👤</span>患者資訊</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+          <div style="width:54px;height:54px;background:var(--brand-light);border-radius:50%;
+            display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">👩</div>
+          <div style="flex:1;">
+            <div style="font-weight:800;font-size:17px;" id="consult-name">陳美玲</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-top:2px;" id="consult-meta">女・1978年・48歲｜回診 第8次</div>
+          </div>
+          <div>
+            <span class="chip chip-consult">看診中</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+          <div style="background:var(--gray-50);padding:10px;border-radius:8px;">
+            <div style="font-size:11px;color:var(--gray-400);">過去病史</div>
+            <div style="font-size:13px;margin-top:2px;">旋轉肌袖撕裂（右）</div>
+          </div>
+          <div style="background:var(--gray-50);padding:10px;border-radius:8px;">
+            <div style="font-size:11px;color:var(--gray-400);">上次就診</div>
+            <div style="font-size:13px;margin-top:2px;">2026/05/16・右肩</div>
+          </div>
+        </div>
+
+        <div class="card-title" style="font-size:13px;color:var(--gray-600);">SOAP 評估</div>
+        <div class="fg"><label>S — 主觀陳述</label>
+          <textarea rows="2" placeholder="患者主訴、疼痛 NRS...">右肩外展疼痛 NRS 5/10，舉手過頭受限，睡眠受影響</textarea></div>
+        <div class="fg"><label>O — 客觀評估</label>
+          <textarea rows="2" placeholder="ROM、特殊測試、觸診...">右肩外展 120°（健側 170°），Neer test ＋，棘上肌壓痛</textarea></div>
+        <div class="fg"><label>A — 評估診斷</label>
+          <textarea rows="2" placeholder="診斷、功能評估...">棘上肌肌腱病變合併肩峰下夾擠症候群</textarea></div>
+        <div class="fg"><label>P — 治療計劃</label>
+          <textarea rows="2" placeholder="目標、次數、注意事項...">每週 2 次 × 6 週，目標：外展 ROM ≥ 160°，NRS ≤ 2</textarea></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title"><span class="icon">📋</span>開立治療處方</div>
+        <div style="margin-bottom:10px;font-size:12px;font-weight:700;color:var(--indigo);">
+          🔵 儀器治療區
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="i1" checked onchange="calcConsultFee()">
+          <label for="i1" class="tr-name"><strong>超音波治療</strong><br><span class="tr-dur">10 分鐘</span></label>
+          <span class="tr-price">$600</span>
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="i2" onchange="calcConsultFee()">
+          <label for="i2" class="tr-name"><strong>雷射治療</strong><br><span class="tr-dur">10 分鐘</span></label>
+          <span class="tr-price">$800</span>
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="i3" onchange="calcConsultFee()">
+          <label for="i3" class="tr-name"><strong>體外震波</strong><br><span class="tr-dur">5 分鐘</span></label>
+          <span class="tr-price">$1,500</span>
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="i4" onchange="calcConsultFee()">
+          <label for="i4" class="tr-name"><strong>電療（干擾波）</strong><br><span class="tr-dur">20 分鐘</span></label>
+          <span class="tr-price">$400</span>
+        </div>
+
+        <div style="margin:12px 0 10px;font-size:12px;font-weight:700;color:var(--purple);">
+          🟣 徒手治療區
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="m1" checked onchange="calcConsultFee()">
+          <label for="m1" class="tr-name"><strong>關節鬆動術</strong><br><span class="tr-dur">30 分鐘</span></label>
+          <span class="tr-price">$1,200</span>
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="m2" onchange="calcConsultFee()">
+          <label for="m2" class="tr-name"><strong>軟組織放鬆</strong><br><span class="tr-dur">30 分鐘</span></label>
+          <span class="tr-price">$900</span>
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="m3" onchange="calcConsultFee()">
+          <label for="m3" class="tr-name"><strong>乾針治療</strong><br><span class="tr-dur">20 分鐘</span></label>
+          <span class="tr-price">$1,000</span>
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="m4" onchange="calcConsultFee()">
+          <label for="m4" class="tr-name"><strong>筋膜放鬆術</strong><br><span class="tr-dur">30 分鐘</span></label>
+          <span class="tr-price">$900</span>
+        </div>
+
+        <div style="margin:12px 0 10px;font-size:12px;font-weight:700;color:var(--brand-dark);">
+          🟢 運動治療區
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="e1" checked onchange="calcConsultFee()">
+          <label for="e1" class="tr-name"><strong>治療性運動訓練</strong><br><span class="tr-dur">30 分鐘</span></label>
+          <span class="tr-price">$800</span>
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="e2" onchange="calcConsultFee()">
+          <label for="e2" class="tr-name"><strong>本體感覺訓練</strong><br><span class="tr-dur">20 分鐘</span></label>
+          <span class="tr-price">$700</span>
+        </div>
+        <div class="treat-row">
+          <input type="checkbox" id="e3" onchange="calcConsultFee()">
+          <label for="e3" class="tr-name"><strong>肌力強化訓練</strong><br><span class="tr-dur">30 分鐘</span></label>
+          <span class="tr-price">$800</span>
+        </div>
+
+        <hr class="div">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="font-weight:700;">本次預估費用</span>
+          <span style="font-size:20px;font-weight:900;color:var(--brand);" id="consult-fee">$2,600</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost" style="flex:1;">暫存草稿</button>
+          <button class="btn btn-brand" style="flex:2;" onclick="sendToTreatment()">
+            ▶ 開立處方・送治療區
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: ZONES  治療區管理
+══════════════════════════════════════════ -->
+<div class="page" id="page-zones">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div style="font-size:13px;color:var(--gray-600);">目前各區治療狀況 — 點選患者可查看詳細</div>
+    <button class="btn btn-brand btn-sm" onclick="openModal('modal-add-zone')">＋ 加入治療區</button>
+  </div>
+
+  <div class="zone-board">
+    <!-- 儀器區 -->
+    <div class="zone-col">
+      <div class="zone-head inst">
+        <span>🔵</span> 儀器治療區
+        <span style="margin-left:auto;background:rgba(74,111,165,.15);color:var(--indigo);
+          border-radius:8px;padding:1px 8px;font-size:11px;">2 人</span>
+      </div>
+      <div class="zone-body">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+          <span style="font-size:11px;background:var(--indigo-light);color:var(--indigo);
+            padding:2px 8px;border-radius:5px;font-weight:600;">超音波</span>
+          <span style="font-size:11px;background:var(--indigo-light);color:var(--indigo);
+            padding:2px 8px;border-radius:5px;font-weight:600;">雷射</span>
+          <span style="font-size:11px;background:var(--indigo-light);color:var(--indigo);
+            padding:2px 8px;border-radius:5px;font-weight:600;">震波</span>
+          <span style="font-size:11px;background:var(--indigo-light);color:var(--indigo);
+            padding:2px 8px;border-radius:5px;font-weight:600;">電療</span>
+          <span style="font-size:11px;background:var(--indigo-light);color:var(--indigo);
+            padding:2px 8px;border-radius:5px;font-weight:600;">牽引</span>
+        </div>
+        <div class="zone-pt">
+          <div class="zp-name">王大明</div>
+          <div class="zp-item">超音波 + 干擾波電療</div>
+          <div class="zp-time">⏱ 已進行 18 分 / 30 分</div>
+          <div style="margin-top:6px;height:4px;background:var(--gray-200);border-radius:2px;">
+            <div style="width:60%;height:4px;background:var(--indigo);border-radius:2px;"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:7px;width:100%;"
+            onclick="finishZone('王大明')">完成・送結帳</button>
+        </div>
+        <div class="zone-pt">
+          <div class="zp-name">黃俊傑</div>
+          <div class="zp-item">雷射治療・頸椎</div>
+          <div class="zp-time">⏱ 已進行 5 分 / 10 分</div>
+          <div style="margin-top:6px;height:4px;background:var(--gray-200);border-radius:2px;">
+            <div style="width:50%;height:4px;background:var(--indigo);border-radius:2px;"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:7px;width:100%;">完成・送結帳</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 徒手區 -->
+    <div class="zone-col">
+      <div class="zone-head manual">
+        <span>🟣</span> 徒手治療區
+        <span style="margin-left:auto;background:rgba(123,94,167,.12);color:var(--purple);
+          border-radius:8px;padding:1px 8px;font-size:11px;">2 人</span>
+      </div>
+      <div class="zone-body">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+          <span style="font-size:11px;background:var(--purple-light);color:var(--purple);
+            padding:2px 8px;border-radius:5px;font-weight:600;">關節鬆動</span>
+          <span style="font-size:11px;background:var(--purple-light);color:var(--purple);
+            padding:2px 8px;border-radius:5px;font-weight:600;">軟組織放鬆</span>
+          <span style="font-size:11px;background:var(--purple-light);color:var(--purple);
+            padding:2px 8px;border-radius:5px;font-weight:600;">乾針</span>
+          <span style="font-size:11px;background:var(--purple-light);color:var(--purple);
+            padding:2px 8px;border-radius:5px;font-weight:600;">筋膜放鬆</span>
+        </div>
+        <div class="zone-pt">
+          <div class="zp-name">林雅惠</div>
+          <div class="zp-item">腰椎關節鬆動 + 軟組織放鬆</div>
+          <div class="zp-time">⏱ 已進行 22 分 / 60 分</div>
+          <div style="margin-top:6px;height:4px;background:var(--gray-200);border-radius:2px;">
+            <div style="width:37%;height:4px;background:var(--purple);border-radius:2px;"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:7px;width:100%;">完成・送結帳</button>
+        </div>
+        <div class="zone-pt">
+          <div class="zp-name">蔡佳穎</div>
+          <div class="zp-item">筋膜放鬆術・下背</div>
+          <div class="zp-time">⏱ 已進行 9 分 / 30 分</div>
+          <div style="margin-top:6px;height:4px;background:var(--gray-200);border-radius:2px;">
+            <div style="width:30%;height:4px;background:var(--purple);border-radius:2px;"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:7px;width:100%;">完成・送結帳</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 運動區 -->
+    <div class="zone-col">
+      <div class="zone-head exercise">
+        <span>🟢</span> 運動治療區
+        <span style="margin-left:auto;background:rgba(43,122,111,.12);color:var(--brand-dark);
+          border-radius:8px;padding:1px 8px;font-size:11px;">1 人</span>
+      </div>
+      <div class="zone-body">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+          <span style="font-size:11px;background:var(--brand-light);color:var(--brand-dark);
+            padding:2px 8px;border-radius:5px;font-weight:600;">核心訓練</span>
+          <span style="font-size:11px;background:var(--brand-light);color:var(--brand-dark);
+            padding:2px 8px;border-radius:5px;font-weight:600;">肌力訓練</span>
+          <span style="font-size:11px;background:var(--brand-light);color:var(--brand-dark);
+            padding:2px 8px;border-radius:5px;font-weight:600;">本體感覺</span>
+          <span style="font-size:11px;background:var(--brand-light);color:var(--brand-dark);
+            padding:2px 8px;border-radius:5px;font-weight:600;">伸展</span>
+        </div>
+        <div class="zone-pt">
+          <div class="zp-name">張志豪</div>
+          <div class="zp-item">核心穩定訓練・L4-5 術後</div>
+          <div class="zp-time">⏱ 已進行 31 分 / 45 分</div>
+          <div style="margin-top:6px;height:4px;background:var(--gray-200);border-radius:2px;">
+            <div style="width:69%;height:4px;background:var(--brand);border-radius:2px;"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:7px;width:100%;"
+            onclick="finishZone('張志豪')">完成・送結帳</button>
+        </div>
+        <div style="text-align:center;padding:20px;color:var(--gray-400);font-size:13px;">
+          尚有空位可安排
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: CHECKOUT  結帳收費
+══════════════════════════════════════════ -->
+<div class="page" id="page-checkout">
+  <div class="grid2" style="align-items:start">
+    <div>
+      <div class="card">
+        <div class="card-title"><span class="icon">💳</span>本次費用明細</div>
+
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;
+          background:var(--gray-50);border-radius:8px;margin-bottom:16px;">
+          <div style="font-size:28px;">👩</div>
+          <div>
+            <div style="font-weight:700;font-size:15px;">趙雅芬</div>
+            <div style="font-size:12px;color:var(--gray-400);">今日治療：儀器 + 徒手 + 商品</div>
+          </div>
+        </div>
+
+        <div class="pay-sum">
+          <div class="pay-row"><span>看診評估費</span><span>$500</span></div>
+          <div class="pay-row" style="color:var(--indigo)"><span>超音波治療</span><span>$600</span></div>
+          <div class="pay-row" style="color:var(--indigo)"><span>電療（干擾波）</span><span>$400</span></div>
+          <div class="pay-row" style="color:var(--purple)"><span>軟組織放鬆（30min）</span><span>$900</span></div>
+          <div class="pay-row total" id="co-total"><span>治療小計</span><span>$2,400</span></div>
+        </div>
+
+        <!-- 商品 -->
+        <div class="card-title" style="font-size:13px;color:var(--gray-600);margin-bottom:10px;">
+          🛍️ 加購商品
+        </div>
+        <div id="selected-products" style="margin-bottom:12px;">
+          <div class="pay-row" style="background:var(--brand-light);padding:8px 10px;border-radius:6px;margin-bottom:5px;">
+            <span>護腰帶（中支撐）× 1</span>
+            <span style="font-weight:700;">$1,200</span>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="openModal('modal-products')">
+          ＋ 新增商品
+        </button>
+
+        <hr class="div">
+        <div class="pay-row total" style="font-size:19px;">
+          <span>應付合計</span>
+          <span style="color:var(--brand);" id="grand-total">$3,600</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">付款方式</div>
+        <div class="pay-method">
+          <div class="pm-btn sel" onclick="selPayMethod(this,'現金')">
+            <div class="pm-icon">💵</div>
+            <div class="pm-label">現金</div>
+          </div>
+          <div class="pm-btn" onclick="selPayMethod(this,'信用卡')">
+            <div class="pm-icon">💳</div>
+            <div class="pm-label">信用卡</div>
+          </div>
+          <div class="pm-btn" onclick="selPayMethod(this,'行動支付')">
+            <div class="pm-icon">📱</div>
+            <div class="pm-label">行動支付</div>
+          </div>
+        </div>
+
+        <div id="cash-ui">
+          <div class="frow">
+            <div class="fg"><label>收取現金</label>
+              <input type="number" id="cash-in" value="3600" oninput="calcChange()"></div>
+            <div class="fg"><label>找零</label>
+              <input type="number" id="cash-out" value="0" readonly style="background:var(--gray-50);"></div>
+          </div>
+        </div>
+        <div id="card-ui" style="display:none">
+          <div class="fg"><label>卡號末四碼</label><input type="text" maxlength="4" placeholder="****"></div>
+          <div class="frow">
+            <div class="fg"><label>分期</label>
+              <select><option>不分期</option><option>3期0利率</option><option>6期0利率</option></select></div>
+            <div class="fg"><label>發票載具</label>
+              <input type="text" placeholder="手機號碼 / 手機條碼"></div>
+          </div>
+        </div>
+        <div id="mobile-ui" style="display:none">
+          <div style="text-align:center;padding:16px;background:var(--gray-50);border-radius:8px;">
+            <div style="font-size:64px;">📲</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-top:6px;">
+              掃描 QR 碼完成付款<br>支援 LINE Pay・街口・Apple Pay
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button class="btn btn-ghost" style="flex:1">← 返回</button>
+          <button class="btn btn-brand btn-lg" style="flex:2" onclick="completePayment()">
+            ✓ 完成付款
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <!-- Receipt (hidden until payment) -->
+      <div id="receipt-card" style="display:none;" class="card">
+        <div class="card-title"><span class="icon">🧾</span>收據</div>
+        <div class="receipt">
+          <h3>成煦物理治療所</h3>
+          <div class="sub">台北市xxx路xx號｜(02) 2345-6789</div>
+          <div style="text-align:left">
+            <div class="rcpt-row"><span>患者</span><span>趙雅芬</span></div>
+            <div class="rcpt-row"><span>日期</span><span id="rcpt-date"></span></div>
+            <div class="rcpt-row"><span>看診評估</span><span>$500</span></div>
+            <div class="rcpt-row"><span>儀器治療（超音波+電療）</span><span>$1,000</span></div>
+            <div class="rcpt-row"><span>徒手治療（軟組織放鬆）</span><span>$900</span></div>
+            <div class="rcpt-row"><span>護腰帶 × 1</span><span>$1,200</span></div>
+            <div class="rcpt-row"><span>付款方式</span><span id="rcpt-method">現金</span></div>
+          </div>
+          <div class="rcpt-total"><span>合計</span><span>$3,600</span></div>
+          <div class="rcpt-footer">
+            感謝您的信任，祝您早日康復！<br>
+            下次預約請來電或掃描官網 QR Code<br>
+            <strong style="color:var(--brand)">成煦・讓你重拾自在生活</strong>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn btn-outline" style="flex:1">🖨 列印</button>
+          <button class="btn btn-outline" style="flex:1">📧 寄出</button>
+          <button class="btn btn-brand" style="flex:1" onclick="goPage('board')">返回看板</button>
+        </div>
+      </div>
+
+      <!-- Products quick add -->
+      <div class="card" id="products-hint">
+        <div class="card-title"><span class="icon">🛍️</span>常見商品快選</div>
+        <div class="prod-grid">
+          <div class="prod-card" onclick="quickAddProd(this,'護腰帶（中）',1200)">
+            <div class="p-icon">🩹</div>
+            <div class="p-name">護腰帶（中）</div>
+            <div class="p-price">$1,200</div>
+            <div class="p-stock">庫存 8</div>
+          </div>
+          <div class="prod-card" onclick="quickAddProd(this,'護膝（加強型）',1,500)">
+            <div class="p-icon">🦵</div>
+            <div class="p-name">護膝（加強型）</div>
+            <div class="p-price">$1,500</div>
+            <div class="p-stock">庫存 5</div>
+          </div>
+          <div class="prod-card" onclick="quickAddProd(this,'肌效貼布（1捲）',280)">
+            <div class="p-icon">🩻</div>
+            <div class="p-name">肌效貼布</div>
+            <div class="p-price">$280</div>
+            <div class="p-stock">庫存 24</div>
+          </div>
+          <div class="prod-card" onclick="quickAddProd(this,'膠原蛋白錠（1盒）',880)">
+            <div class="p-icon">💊</div>
+            <div class="p-name">膠原蛋白錠</div>
+            <div class="p-price">$880</div>
+            <div class="p-stock">庫存 12</div>
+          </div>
+          <div class="prod-card" onclick="quickAddProd(this,'葡萄糖胺膠囊（1盒）',960)">
+            <div class="p-icon">🫙</div>
+            <div class="p-name">葡萄糖胺</div>
+            <div class="p-price">$960</div>
+            <div class="p-stock">庫存 9</div>
+          </div>
+          <div class="prod-card" onclick="quickAddProd(this,'按摩球組',350)">
+            <div class="p-icon">⚽</div>
+            <div class="p-name">按摩球組</div>
+            <div class="p-price">$350</div>
+            <div class="p-stock">庫存 15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: PATIENTS  患者資料
+══════════════════════════════════════════ -->
+<div class="page" id="page-patients">
+  <div class="card">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;">
+      <input type="text" placeholder="🔍 搜尋患者…" style="flex:1;padding:8px 12px;
+        border:1.5px solid var(--gray-200);border-radius:7px;font-size:13px;outline:none;">
+      <select style="padding:8px 12px;border:1.5px solid var(--gray-200);
+        border-radius:7px;font-size:13px;outline:none;">
+        <option>全部患者</option><option>本月就診</option><option>新患</option>
+      </select>
+      <button class="btn btn-brand" onclick="openModal('modal-new-patient')">＋ 新增患者</button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>患者</th><th>聯絡電話</th><th>主要問題</th><th>最近就診</th><th>累計次數</th><th>累計消費</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>王大明</strong><br><span style="font-size:11px;color:var(--gray-400)">男・52歲</span></td>
+          <td>0912-345-678</td><td>腰椎下背痛</td><td>2026/05/23</td><td>28 次</td>
+          <td style="font-weight:700;color:var(--brand)">$45,200</td>
+          <td><button class="btn btn-ghost btn-sm">查看</button></td>
+        </tr>
+        <tr>
+          <td><strong>陳美玲</strong><br><span style="font-size:11px;color:var(--gray-400)">女・48歲</span></td>
+          <td>0923-456-789</td><td>右肩旋轉肌袖</td><td>2026/05/23</td><td>15 次</td>
+          <td style="font-weight:700;color:var(--brand)">$28,500</td>
+          <td><button class="btn btn-ghost btn-sm">查看</button></td>
+        </tr>
+        <tr>
+          <td><strong>林雅惠</strong><br><span style="font-size:11px;color:var(--gray-400)">女・35歲</span></td>
+          <td>0934-567-890</td><td>腰椎椎間盤突出</td><td>2026/05/23</td><td>42 次</td>
+          <td style="font-weight:700;color:var(--brand)">$76,800</td>
+          <td><button class="btn btn-ghost btn-sm">查看</button></td>
+        </tr>
+        <tr>
+          <td><strong>張志豪</strong><br><span style="font-size:11px;color:var(--gray-400)">男・29歲</span></td>
+          <td>0945-678-901</td><td>術後復健</td><td>2026/05/22</td><td>7 次</td>
+          <td style="font-weight:700;color:var(--brand)">$12,600</td>
+          <td><button class="btn btn-ghost btn-sm">查看</button></td>
+        </tr>
+        <tr>
+          <td><strong>趙雅芬</strong><br><span style="font-size:11px;color:var(--gray-400)">女・41歲</span></td>
+          <td>0956-789-012</td><td>頸椎肩頸僵硬</td><td>2026/05/23</td><td>11 次</td>
+          <td style="font-weight:700;color:var(--brand)">$21,900</td>
+          <td><button class="btn btn-ghost btn-sm">查看</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: PRODUCTS  商品管理
+══════════════════════════════════════════ -->
+<div class="page" id="page-products">
+  <div class="grid2" style="align-items:start">
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between">
+        <span><span class="icon">🛍️</span>商品庫存</span>
+        <button class="btn btn-brand btn-sm">＋ 新增商品</button>
+      </div>
+      <table>
+        <thead><tr><th>商品</th><th>類別</th><th>售價</th><th>庫存</th><th>本月銷售</th></tr></thead>
+        <tbody>
+          <tr><td>護腰帶（中支撐型）</td><td><span class="chip chip-checkout">護具</span></td><td>$1,200</td><td>8</td><td>12件</td></tr>
+          <tr><td>護腰帶（強支撐型）</td><td><span class="chip chip-checkout">護具</span></td><td>$1,800</td><td>4</td><td>5件</td></tr>
+          <tr><td>護膝（加強型）</td><td><span class="chip chip-checkout">護具</span></td><td>$1,500</td><td>5</td><td>7件</td></tr>
+          <tr><td>護踝（運動型）</td><td><span class="chip chip-checkout">護具</span></td><td>$900</td><td>10</td><td>3件</td></tr>
+          <tr><td>肌效貼布（1捲）</td><td><span class="chip chip-inst">耗材</span></td><td>$280</td><td>24</td><td>18件</td></tr>
+          <tr><td>膠原蛋白錠（1盒）</td><td><span class="chip chip-exercise">保健食品</span></td><td>$880</td><td>12</td><td>9件</td></tr>
+          <tr><td>葡萄糖胺膠囊（1盒）</td><td><span class="chip chip-exercise">保健食品</span></td><td>$960</td><td>9</td><td>6件</td></tr>
+          <tr><td>Omega-3 魚油（1盒）</td><td><span class="chip chip-exercise">保健食品</span></td><td>$750</td><td>15</td><td>4件</td></tr>
+          <tr><td>按摩球組（2顆）</td><td><span class="chip chip-manual">輔具</span></td><td>$350</td><td>15</td><td>8件</td></tr>
+          <tr><td>彈力帶組（3條）</td><td><span class="chip chip-manual">輔具</span></td><td>$480</td><td>20</td><td>10件</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">📦</span>本月商品銷售</div>
+      <div class="pay-row"><span>護具類</span><span style="font-weight:700;">$32,700（27件）</span></div>
+      <div class="pay-row"><span>保健食品</span><span style="font-weight:700;">$17,130（19件）</span></div>
+      <div class="pay-row"><span>耗材/輔具</span><span style="font-weight:700;">$9,840（36件）</span></div>
+      <hr class="div">
+      <div class="pay-row total"><span>商品小計</span><span>$59,670</span></div>
+      <div style="margin-top:14px;font-size:12px;color:var(--gray-400);">
+        商品收入佔總收入比例：約 <strong style="color:var(--amber)">32%</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: REPORTS  收入報表
+══════════════════════════════════════════ -->
+<div class="page" id="page-reports">
+  <div class="stats">
+    <div class="stat"><div class="s-label">本月總收入</div><div class="s-val">$186,400</div><div class="s-sub">↑ 較上月 +11%</div></div>
+    <div class="stat"><div class="s-label">治療收入</div><div class="s-val" style="color:var(--brand)">$126,730</div><div class="s-sub" style="color:var(--gray-400)">68%</div></div>
+    <div class="stat"><div class="s-label">商品收入</div><div class="s-val" style="color:var(--amber)">$59,670</div><div class="s-sub" style="color:var(--gray-400)">32%</div></div>
+    <div class="stat"><div class="s-label">平均客單</div><div class="s-val" style="color:var(--indigo)">$1,864</div><div class="s-sub">↑ 較上月 +$120</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title"><span class="icon">📈</span>本月每日收入</div>
+      <div class="bar-chart" id="report-bars"></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;
+        color:var(--gray-400);margin-top:5px;padding:0 2px;">
+        <span>5/1</span><span>5/8</span><span>5/15</span><span>5/22</span><span>今</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">🗂</span>各治療項目收入</div>
+      <table>
+        <thead><tr><th>項目</th><th>次數</th><th>收入</th></tr></thead>
+        <tbody>
+          <tr><td>徒手治療（關節鬆動）</td><td>58</td><td style="font-weight:700;color:var(--purple)">$69,600</td></tr>
+          <tr><td>治療性運動</td><td>45</td><td style="font-weight:700;color:var(--brand)">$36,000</td></tr>
+          <tr><td>超音波治療</td><td>52</td><td style="font-weight:700;color:var(--indigo)">$31,200</td></tr>
+          <tr><td>體外震波</td><td>18</td><td style="font-weight:700;color:var(--amber)">$27,000</td></tr>
+          <tr><td>乾針治療</td><td>14</td><td style="font-weight:700;color:var(--indigo)">$14,000</td></tr>
+          <tr><td>雷射治療</td><td>22</td><td style="font-weight:700;color:var(--indigo)">$17,600</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /wrap -->
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- 快速報到 -->
+<div class="modal-overlay" id="modal-checkin">
+  <div class="modal">
+    <div class="modal-title">📝 快速報到</div>
+    <div class="frow">
+      <div class="fg"><label>患者姓名</label><input type="text" placeholder="姓名"></div>
+      <div class="fg"><label>電話</label><input type="tel" placeholder="0912-000-000"></div>
+    </div>
+    <div class="fg"><label>主訴</label><input type="text" placeholder="主要疼痛部位..."></div>
+    <div class="frow">
+      <div class="fg"><label>就診類型</label>
+        <select><option>初診</option><option>回診</option></select></div>
+      <div class="fg"><label>預計時段</label>
+        <select><option>立即看診</option><option>14:00</option><option>14:30</option><option>15:00</option></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-checkin')">取消</button>
+      <button class="btn btn-brand" onclick="doCheckinModal()">✓ 完成報到</button>
+    </div>
+  </div>
+</div>
+
+<!-- 加入治療區 -->
+<div class="modal-overlay" id="modal-add-zone">
+  <div class="modal">
+    <div class="modal-title">⚕️ 加入治療區</div>
+    <div class="fg"><label>患者</label>
+      <select><option>許淑芬（等候看診）</option><option>吳建宏（等候看診）</option></select></div>
+    <div class="fg"><label>分配治療區</label>
+      <select><option>🔵 儀器治療區</option><option>🟣 徒手治療區</option><option>🟢 運動治療區</option></select></div>
+    <div class="fg"><label>治療項目</label>
+      <select><option>超音波治療</option><option>電療（干擾波）</option><option>雷射治療</option>
+        <option>關節鬆動術</option><option>軟組織放鬆</option><option>治療性運動</option></select></div>
+    <div class="fg"><label>預計時間（分鐘）</label><input type="number" value="30"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-zone')">取消</button>
+      <button class="btn btn-brand" onclick="closeModal('modal-add-zone');showToast('✅ 已加入治療區')">確認加入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 商品選購（結帳頁） -->
+<div class="modal-overlay" id="modal-products">
+  <div class="modal" style="width:560px">
+    <div class="modal-title">🛍️ 選購商品</div>
+    <div class="prod-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="prod-card" onclick="toggleProd(this)"><div class="p-icon">🩹</div><div class="p-name">護腰帶（中）</div><div class="p-price">$1,200</div><div class="qty-ctrl"><button>-</button><span>0</span><button>+</button></div></div>
+      <div class="prod-card" onclick="toggleProd(this)"><div class="p-icon">💪</div><div class="p-name">護腰帶（強）</div><div class="p-price">$1,800</div><div class="qty-ctrl"><button>-</button><span>0</span><button>+</button></div></div>
+      <div class="prod-card" onclick="toggleProd(this)"><div class="p-icon">🦵</div><div class="p-name">護膝（加強）</div><div class="p-price">$1,500</div><div class="qty-ctrl"><button>-</button><span>0</span><button>+</button></div></div>
+      <div class="prod-card" onclick="toggleProd(this)"><div class="p-icon">🩻</div><div class="p-name">肌效貼布</div><div class="p-price">$280</div><div class="qty-ctrl"><button>-</button><span>0</span><button>+</button></div></div>
+      <div class="prod-card" onclick="toggleProd(this)"><div class="p-icon">💊</div><div class="p-name">膠原蛋白錠</div><div class="p-price">$880</div><div class="qty-ctrl"><button>-</button><span>0</span><button>+</button></div></div>
+      <div class="prod-card" onclick="toggleProd(this)"><div class="p-icon">🫙</div><div class="p-name">葡萄糖胺</div><div class="p-price">$960</div><div class="qty-ctrl"><button>-</button><span>0</span><button>+</button></div></div>
+      <div class="prod-card" onclick="toggleProd(this)"><div class="p-icon">🐟</div><div class="p-name">Omega-3 魚油</div><div class="p-price">$750</div><div class="qty-ctrl"><button>-</button><span>0</span><button>+</button></div></div>
+      <div class="prod-card" onclick="toggleProd(this)"><div class="p-icon">⚽</div><div class="p-name">按摩球組</div><div class="p-price">$350</div><div class="qty-ctrl"><button>-</button><span>0</span><button>+</button></div></div>
+      <div class="prod-card" onclick="toggleProd(this)"><div class="p-icon">🎗️</div><div class="p-name">彈力帶組</div><div class="p-price">$480</div><div class="qty-ctrl"><button>-</button><span>0</span><button>+</button></div></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-products')">取消</button>
+      <button class="btn btn-brand" onclick="closeModal('modal-products');showToast('🛍️ 商品已加入結帳')">確認加入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新增患者 -->
+<div class="modal-overlay" id="modal-new-patient">
+  <div class="modal">
+    <div class="modal-title">👤 新增患者</div>
+    <div class="frow"><div class="fg"><label>姓名</label><input type="text"></div>
+      <div class="fg"><label>性別</label><select><option>女</option><option>男</option></select></div></div>
+    <div class="frow"><div class="fg"><label>電話</label><input type="tel" placeholder="0912-000-000"></div>
+      <div class="fg"><label>出生年月日</label><input type="date"></div></div>
+    <div class="fg"><label>緊急聯絡人</label><input type="text" placeholder="姓名・關係・電話"></div>
+    <div class="fg"><label>主要問題 / 來訪目的</label><textarea rows="2"></textarea></div>
+    <div class="fg"><label>過去病史</label><textarea rows="2" placeholder="慢性病、手術史、藥物過敏…"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-new-patient')">取消</button>
+      <button class="btn btn-brand" onclick="closeModal('modal-new-patient');showToast('✅ 患者資料已建立')">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── Navigation ───
+const titles = {
+  board:'今日流程看板', checkin:'報到掛號',
+  consult:'看診評估', zones:'治療區管理',
+  checkout:'結帳收費', patients:'患者資料',
+  products:'商品管理', reports:'收入報表'
+};
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('page-title').textContent = titles[id];
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if ((n.getAttribute('onclick') || '').includes("'" + id + "'"))
+      n.classList.add('active');
+  });
+}
+
+// ─── Date ───
+const now = new Date();
+document.getElementById('topbar-date').textContent =
+  now.toLocaleDateString('zh-TW', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+
+// ─── Toast ───
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── Modal ───
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+
+// ─── Consult ───
+function openConsult(name, type, complaint) {
+  document.getElementById('consult-name').textContent = name;
+  document.getElementById('consult-meta').textContent =
+    type + ' | 主訴：' + complaint;
+  goPage('consult');
+}
+
+const consultPrices = {i1:600,i2:800,i3:1500,i4:400,m1:1200,m2:900,m3:1000,m4:900,e1:800,e2:700,e3:800};
+function calcConsultFee() {
+  let total = 500; // 看診費
+  Object.keys(consultPrices).forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.checked) total += consultPrices[id];
+  });
+  document.getElementById('consult-fee').textContent = '$' + total.toLocaleString();
+}
+calcConsultFee();
+
+function sendToTreatment() {
+  goPage('zones');
+  showToast('✅ 處方已開立，患者已加入治療區');
+}
+
+// ─── Checkout ───
+function selPayMethod(el, label) {
+  document.querySelectorAll('.pm-btn').forEach(x => x.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('cash-ui').style.display = label === '現金' ? 'block' : 'none';
+  document.getElementById('card-ui').style.display = label === '信用卡' ? 'block' : 'none';
+  document.getElementById('mobile-ui').style.display = label === '行動支付' ? 'block' : 'none';
+  document.getElementById('rcpt-method').textContent = label;
+}
+function calcChange() {
+  const v = parseInt(document.getElementById('cash-in').value) || 0;
+  document.getElementById('cash-out').value = Math.max(0, v - 3600);
+}
+function completePayment() {
+  document.getElementById('receipt-card').style.display = 'block';
+  document.getElementById('products-hint').style.display = 'none';
+  document.getElementById('rcpt-date').textContent = now.toLocaleDateString('zh-TW');
+  document.getElementById('receipt-card').scrollIntoView({behavior:'smooth'});
+  showToast('✅ 付款完成！感謝 趙雅芬 光臨成煦');
+}
+function quickAddProd(el, name, price) {
+  el.classList.toggle('selected');
+  showToast(el.classList.contains('selected') ? `🛍️ 已加入：${name}` : `移除：${name}`);
+}
+function finishZone(name) {
+  goPage('checkout');
+  showToast(`✅ ${name} 治療完成，已進入結帳`);
+}
+
+// ─── Check-in ───
+const demoPatients = ['王大明','陳美玲','林雅惠','張志豪','趙雅芬','許淑芬','吳建宏','蔡佳穎'];
+function searchPatient(q) {
+  const res = document.getElementById('search-results');
+  if (!q) { res.innerHTML = ''; return; }
+  const matches = demoPatients.filter(p => p.includes(q));
+  if (!matches.length) { res.innerHTML = ''; return; }
+  res.innerHTML = matches.map(m =>
+    `<div onclick="selectPt('${m}')" style="padding:8px 12px;background:var(--brand-xlight);
+      border:1px solid var(--brand-light);border-radius:7px;cursor:pointer;margin-bottom:6px;
+      font-size:13px;font-weight:600;color:var(--brand);" onmouseover="this.style.background='var(--brand-light)'"
+      onmouseout="this.style.background='var(--brand-xlight)'">${m}（點選帶入資料）</div>`
+  ).join('');
+}
+function selectPt(name) {
+  document.getElementById('ci-name').value = name;
+  document.getElementById('search-results').innerHTML = '';
+  document.getElementById('search-pt').value = name;
+  showToast(`已帶入 ${name} 資料`);
+}
+function doCheckin() { showToast('✅ 報到完成！已加入等候看診列表'); }
+function doCheckinModal() { closeModal('modal-checkin'); showToast('✅ 報到完成！已加入等候看診'); }
+
+// ─── Reports chart ───
+(function(){
+  const vals = [6800,8200,5400,9200,7800,6500,10200,5900,8400,9100,7200,11200,6400,9800,7600,10400,7100,9400,8100,11600,6200,10500,8000,14800];
+  const max = Math.max(...vals);
+  const container = document.getElementById('report-bars');
+  if (!container) return;
+  container.innerHTML = vals.map((v,i) =>
+    `<div class="bar" style="height:${(v/max*100)}%;background:${i===vals.length-1?'var(--brand)':'var(--brand-light)'};
+      min-height:4px;" title="$${v.toLocaleString()}"></div>`
+  ).join('');
+})();
+
+// ─── Product qty controls ───
+document.querySelectorAll('.qty-ctrl').forEach(ctrl => {
+  const [minus, span, plus] = [ctrl.querySelector('button:first-child'),
+    ctrl.querySelector('span'), ctrl.querySelector('button:last-child')];
+  minus.onclick = e => { e.stopPropagation(); let v = parseInt(span.textContent); if(v>0) span.textContent=v-1; };
+  plus.onclick  = e => { e.stopPropagation(); let v = parseInt(span.textContent); span.textContent=v+1; };
+});
+</script>
+</body>
+</html>
